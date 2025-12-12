@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Indian Income Tax Calculator (AY 2024–25 to 2026–27)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f7fb;
+      color: #222;
+    }
+    .page {
+      max-width: 1100px;
+      margin: 0 auto 40px;
+      background: #ffffff;
+      box-shadow: 0 0 0 1px #d0d7e2;
+    }
+    .header {
+      background: #e5f1ff;
+      border-bottom: 1px solid #c6d6f0;
+      padding: 16px 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+      color: #184b8a;
+    }
+    .header .sub {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #555;
+    }
+    .content {
+      padding: 16px 20px 24px;
+    }
+    .section {
+      border: 1px solid #d0d7e2;
+      margin-bottom: 14px;
+      background: #fafcff;
+    }
+    .section-header {
+      padding: 8px 10px;
+      background: #edf3ff;
+      border-bottom: 1px solid #d0d7e2;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-header span.title {
+      font-weight: bold;
+      font-size: 14px;
+      color: #184b8a;
+    }
+    .section-header span.toggle {
+      font-size: 12px;
+      color: #555;
+    }
+    .section-body {
+      padding: 10px 12px 12px;
+    }
+    label {
+      display: block;
+      margin-top: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #222;
+    }
+    input, select, button {
+      margin-top: 3px;
+      padding: 6px;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #c3c9d7;
+      border-radius: 2px;
+    }
+    select {
+      background: #ffffff;
+    }
+    button {
+      width: auto;
+      background: #1b63c1;
+      color: #ffffff;
+      border: 1px solid #174f98;
+      cursor: pointer;
+      padding: 7px 16px;
+      font-weight: bold;
+      border-radius: 2px;
+      margin-top: 8px;
+    }
+    button:hover {
+      background: #164f9c;
+    }
+    .small {
+      font-size: 11px;
+      color: #555;
+      margin-top: 4px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 16px;
+    }
+    .result {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 15px;
+      color: #1b3f7a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 12px;
+      background: #ffffff;
+    }
+    th, td {
+      border: 1px solid #d0d7e2;
+      padding: 6px;
+      text-align: left;
+    }
+    th {
+      background: #edf3ff;
+      color: #184b8a;
+    }
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .content {
+        padding: 12px 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <h1>Indian Income Tax Calculator ITR-1 for salary</h1>
+      <div class="sub">
+        Hierarchy: AY → Regime → Incomes → Gross total → Pre–VI‑A deductions → Net income →
+        Chapter VI‑A (old only) → Taxable → Slab tax → Rebate → 4% cess → TDS → Final payable
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- 1. AY & Regime -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection('sec-ay')">
+          <span class="title">1. Assessment year & tax regime</span>
+          <span class="toggle" id="toggle-sec-ay">Hide</span>
+        </div>
+        <div class="section-body" id="sec-ay">
+          <label for="ay">Assessment Year (AY)</label>
+          <select id="ay" onchange="updateUI()">
+            <option value="2024-25">AY 2024–25</option>
+            <option value="2025-26">AY 2025–26</option>
+            <option value="2026-27" selected>AY 2026–27</option>
+          </select>
+
+          <label for="regime">Tax Regime</label>
+          <select id="regime" onchange="updateUI()">
+            <option value="new">New Regime</option>
+            <option value="old" selected>Old Regime</option>
+          </select>
+
+          <div class="small">
+            <b>Old Regime:</b> Standard deduction ₹50,000; Profession Tax & HRA allowed; Chapter VI‑A allowed
+            (80C, 80CCD, 80D, 80E, 80TTA, 80DDB, 80DD, 80U, 80G, 80GGC, 80GGA); Rebate u/s 87A if taxable ≤ ₹5,00,000.<br>
+            <b>New Regime:</b> Standard deduction ₹50,000 (AY 2024–25), ₹75,000 (AY 2025–26 & 2026–27); Chapter VI‑A not allowed;
+            Rebate u/s 87A: AY 2024–25 up to ₹5,00,000; AY 2025–26 up to ₹7,00,000; AY 2026–27 up to ₹12,00,000.
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Income details -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection('sec-income')">
+          <span class="title">2. Income details</span>
+          <span class="toggle" id="toggle-sec-income">Hide</span>
+        </div>
+        <div class="section-body" id="sec-income">
+          <div class="grid-2">
+            <div>
+              <label for="grossIncome">Gross income (₹)</label>
+              <input type="number" id="grossIncome" min="0" placeholder="e.g. 850000">
+            </div>
+            <div>
+              <label for="otherIncome">Other income (₹)</label>
+              <input type="number" id="otherIncome" min="0" placeholder="e.g. 35000">
+            </div>
+            <div>
+              <label for="arrears">Arrears (₹)</label>
+              <input type="number" id="arrears" min="0" placeholder="e.g. 20000">
+            </div>
+            <div>
+              <label for="tds">TDS from salary (₹)</label>
+              <input type="number" id="tds" min="0" placeholder="e.g. 25000">
+            </div>
+          </div>
+          <div class="small" id="grossTotalNote"></div>
+        </div>
+      </div>
+
+      <!-- 3. Pre VI-A deductions -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection('sec-pre-via')">
+          <span class="title">3. Deductions before Chapter VI‑A</span>
+          <span class="toggle" id="toggle-sec-pre-via">Hide</span>
+        </div>
+        <div class="section-body" id="sec-pre-via">
+          <div class="grid-2">
+            <div>
+              <label for="stdDeduction">Standard deduction (₹)</label>
+              <input type="number" id="stdDeduction" readonly>
+            </div>
+            <div id="wrap-profTax">
+              <label for="profTax">Profession tax deduction (₹)</label>
+              <input type="number" id="profTax" min="0" placeholder="e.g. 2400">
+            </div>
+            <div id="wrap-hra">
+              <label for="hra">HRA deduction (₹)</label>
+              <input type="number" id="hra" min="0" placeholder="Eligible HRA amount">
+            </div>
+          </div>
+          <div class="small" id="netPreVINote"></div>
+        </div>
+      </div>
+
+      <!-- 4. Chapter VI-A (Old regime only) -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection('sec-via')">
+          <span class="title">4. Chapter VI‑A deductions (Old Regime only)</span>
+          <span class="toggle" id="toggle-sec-via">Hide</span>
+        </div>
+        <div class="section-body" id="sec-via">
+          <div id="chapterVIASection">
+            <div class="grid-2">
+              <div>
+                <label for="d80C">80C (₹) – PPF, ELSS, etc. (cap ₹1,50,000)</label>
+                <input type="number" id="d80C" min="0">
+              </div>
+              <div>
+                <label for="d80CCD">80CCD (₹) – NPS contributions</label>
+                <input type="number" id="d80CCD" min="0">
+              </div>
+              <div>
+                <label for="d80D">80D (₹) – Medical insurance</label>
+                <input type="number" id="d80D" min="0">
+              </div>
+              <div>
+                <label for="d80E">80E (₹) – Education loan interest</label>
+                <input type="number" id="d80E" min="0">
+              </div>
+              <div>
+                <label for="d80TTA">80TTA (₹) – Savings interest</label>
+                <input type="number" id="d80TTA" min="0">
+              </div>
+              <div>
+                <label for="d80DDB">80DDB (₹) – Specified diseases</label>
+                <input type="number" id="d80DDB" min="0">
+              </div>
+              <div>
+                <label for="d80DD">80DD (₹) – Dependent with disability</label>
+                <input type="number" id="d80DD" min="0">
+              </div>
+              <div>
+                <label for="d80U">80U (₹) – Individual with disability</label>
+                <input type="number" id="d80U" min="0">
+              </div>
+              <div>
+                <label for="d80G">80G (₹) – Donations (eligible portion)</label>
+                <input type="number" id="d80G" min="0">
+              </div>
+              <div>
+                <label for="d80GGC">80GGC (₹) – Political party donations</label>
+                <input type="number" id="d80GGC" min="0">
+              </div>
+              <div>
+                <label for="d80GGA">80GGA (₹) – Research/charity donations</label>
+                <input type="number" id="d80GGA" min="0">
+              </div>
+            </div>
+            <div class="small" id="chapterVIANote"></div>
+          </div>
+          <div class="small" id="chapterVIAExcludedNote"></div>
+        </div>
+      </div>
+
+      <!-- 5. Compute -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection('sec-compute')">
+          <span class="title">5. Tax computation</span>
+          <span class="toggle" id="toggle-sec-compute">Hide</span>
+        </div>
+        <div class="section-body" id="sec-compute">
+          <button onclick="calculate()">Calculate Tax</button>
+          <div class="result" id="result"></div>
+          <div id="breakdown"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function toggleSection(id) {
+      const body = document.getElementById(id);
+      const toggleLabel = document.getElementById('toggle-' + id);
+      if (!body || !toggleLabel) return;
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        toggleLabel.textContent = 'Hide';
+      } else {
+        body.style.display = 'none';
+        toggleLabel.textContent = 'Show';
+      }
+    }
+
+    function n(val) {
+      const x = parseFloat(val);
+      return isNaN(x) || x < 0 ? 0 : x;
+    }
+
+    function getRules(ay, regime) {
+      const oldSlabs = [
+        { lower: 0,       upper: 250000,  rate: 0.00 },
+        { lower: 250000,  upper: 500000,  rate: 0.05 },
+        { lower: 500000,  upper: 1000000, rate: 0.20 },
+        { lower: 1000000, upper: Infinity, rate: 0.30 }
+      ];
+      const new24_25 = [
+        { lower: 0,       upper: 300000,  rate: 0.00 },
+        { lower: 300000,  upper: 600000,  rate: 0.05 },
+        { lower: 600000,  upper: 900000,  rate: 0.10 },
+        { lower: 900000,  upper: 1200000, rate: 0.15 },
+        { lower: 1200000, upper: 1500000, rate: 0.20 },
+        { lower: 1500000, upper: Infinity, rate: 0.30 }
+      ];
+      const new25_26 = new24_25;
+      const new26_27 = [
+        { lower: 0,       upper: 400000,  rate: 0.00 },
+        { lower: 400000,  upper: 800000,  rate: 0.05 },
+        { lower: 800000,  upper: 1200000, rate: 0.10 },
+        { lower: 1200000, upper: 1600000, rate: 0.15 },
+        { lower: 1600000, upper: 2000000, rate: 0.20 },
+        { lower: 2000000, upper: 2400000, rate: 0.25 },
+        { lower: 2400000, upper: Infinity, rate: 0.30 }
+      ];
+
+      const std = (regime === "old")
+        ? 50000
+        : (ay === "2024-25" ? 50000 : 75000);
+
+      const rebateThreshold = (regime === "old")
+        ? 500000
+        : (ay === "2024-25" ? 500000 : (ay === "2025-26" ? 700000 : 1200000));
+
+      const slabs = (regime === "old")
+        ? oldSlabs
+        : (ay === "2024-25" ? new24_25 : (ay === "2025-26" ? new25_26 : new26_27));
+
+      return { std, rebateThreshold, slabs };
+    }
+
+    function computeSlabTax(taxable, slabs) {
+      let baseTax = 0;
+      const rows = [];
+      if (taxable <= 0) return { baseTax: 0, rows };
+
+      for (const s of slabs) {
+        if (taxable <= s.lower) break;
+        const covered = Math.min(taxable, s.upper) - s.lower;
+        if (covered > 0) {
+          const taxForSlab = covered * s.rate;
+          const toLabel = (s.upper === Infinity) ? taxable : s.upper;
+          rows.push([
+            `₹${s.lower.toLocaleString("en-IN")}–₹${toLabel.toLocaleString("en-IN")}`,
+            `${(s.rate * 100).toFixed(0)}%`,
+            `₹${Math.round(taxForSlab).toLocaleString("en-IN")}`
+          ]);
+          baseTax += taxForSlab;
+        }
+      }
+      return { baseTax, rows };
+    }
+
+    function formatINR(v) {
+      return Math.round(v).toLocaleString("en-IN");
+    }
+
+    function updateUI() {
+      const ay = document.getElementById("ay").value;
+      const regime = document.getElementById("regime").value;
+      const r = getRules(ay, regime);
+      document.getElementById("stdDeduction").value = r.std;
+
+      const isOld = (regime === "old");
+      document.getElementById("wrap-profTax").style.display = isOld ? "block" : "none";
+      document.getElementById("wrap-hra").style.display = isOld ? "block" : "none";
+      document.getElementById("chapterVIASection").style.display = isOld ? "block" : "none";
+      document.getElementById("chapterVIAExcludedNote").textContent =
+        isOld ? "" : "Chapter VI‑A deductions are not available under the New Regime.";
+    }
+
+    function calculate() {
+      const ay = document.getElementById("ay").value;
+      const regime = document.getElementById("regime").value;
+      const r = getRules(ay, regime);
+
+      const gross = n(document.getElementById("grossIncome").value);
+      const other = n(document.getElementById("otherIncome").value);
+      const arrears = n(document.getElementById("arrears").value);
+      const tds = n(document.getElementById("tds").value);
+
+      const grossTotal = gross + other + arrears;
+      document.getElementById("grossTotalNote").textContent =
+        `Gross total = ₹${grossTotal.toLocaleString("en-IN")} (Gross + Other + Arrears)`;
+
+      let profTax = 0, hra = 0;
+      if (regime === "old") {
+        profTax = n(document.getElementById("profTax").value);
+        hra = n(document.getElementById("hra").value);
+      }
+
+      const netPreVI = Math.max(0, grossTotal - r.std - profTax - hra);
+      document.getElementById("netPreVINote").textContent =
+        `Net income before Chapter VI‑A = ₹${netPreVI.toLocaleString("en-IN")} (Gross total − Std deduction − Prof Tax − HRA)`;
+
+      let d80C=0,d80CCD=0,d80D=0,d80E=0,d80TTA=0,d80DDB=0,d80DD=0,d80U=0,d80G=0,d80GGC=0,d80GGA=0;
+      let capped80C=0, chapterTotal=0;
+
+      if (regime === "old") {
+        d80C = n(document.getElementById("d80C").value);
+        capped80C = Math.min(d80C, 150000);
+        d80CCD = n(document.getElementById("d80CCD").value);
+        d80D = n(document.getElementById("d80D").value);
+        d80E = n(document.getElementById("d80E").value);
+        d80TTA = n(document.getElementById("d80TTA").value);
+        d80DDB = n(document.getElementById("d80DDB").value);
+        d80DD = n(document.getElementById("d80DD").value);
+        d80U = n(document.getElementById("d80U").value);
+        d80G = n(document.getElementById("d80G").value);
+        d80GGC = n(document.getElementById("d80GGC").value);
+        d80GGA = n(document.getElementById("d80GGA").value);
+
+        chapterTotal = capped80C + d80CCD + d80D + d80E + d80TTA +
+                       d80DDB + d80DD + d80U + d80G + d80GGC + d80GGA;
+
+        document.getElementById("chapterVIANote").textContent =
+          `Chapter VI‑A total = ₹${chapterTotal.toLocaleString("en-IN")} (80C capped at ₹1,50,000; others as per law).`;
+      } else {
+        document.getElementById("chapterVIANote").textContent = "";
+      }
+
+      const taxable = Math.max(0, netPreVI - (regime === "old" ? chapterTotal : 0));
+
+      const slab = computeSlabTax(taxable, r.slabs);
+      const baseTax = slab.baseTax;
+
+      let rebate = 0;
+      if (taxable > 0 && taxable <= r.rebateThreshold) rebate = baseTax;
+
+      const taxAfterRebate = Math.max(0, baseTax - rebate);
+      const cess = taxAfterRebate * 0.04;
+      const totalWithCess = taxAfterRebate + cess;
+      const netPayable = Math.max(0, totalWithCess - tds);
+
+      document.getElementById("result").textContent =
+        `Tax payable under ${regime === "new" ? "New" : "Old"} Regime (${ay}): ₹${formatINR(netPayable)}`;
+
+      // Breakdown
+      let table = "<table><tr><th>Step</th><th>Detail</th><th>Amount</th></tr>";
+      table += `<tr><td>Gross total</td><td>Gross + Other + Arrears</td><td>₹${grossTotal.toLocaleString("en-IN")}</td></tr>`;
+      table += `<tr><td>Pre VI‑A deductions</td><td>Std ₹${r.std.toLocaleString("en-IN")}, Prof Tax ₹${profTax.toLocaleString("en-IN")}, HRA ₹${hra.toLocaleString("en-IN")}</td><td>₹${(r.std + profTax + hra).toLocaleString("en-IN")}</td></tr>`;
+      table += `<tr><td>Net income</td><td>After pre VI‑A deductions</td><td>₹${netPreVI.toLocaleString("en-IN")}</td></tr>`;
+
+      if (regime === "old") {
+        table += `<tr><td>Chapter VI‑A</td><td>
+          80C (cap) ₹${capped80C.toLocaleString("en-IN")},
+          80CCD ₹${d80CCD.toLocaleString("en-IN")},
+          80D ₹${d80D.toLocaleString("en-IN")},
+          80E ₹${d80E.toLocaleString("en-IN")},
+          80TTA ₹${d80TTA.toLocaleString("en-IN")},
+          80DDB ₹${d80DDB.toLocaleString("en-IN")},
+          80DD ₹${d80DD.toLocaleString("en-IN")},
+          80U ₹${d80U.toLocaleString("en-IN")},
+          80G ₹${d80G.toLocaleString("en-IN")},
+          80GGC ₹${d80GGC.toLocaleString("en-IN")},
+          80GGA ₹${d80GGA.toLocaleString("en-IN")}
+        </td><td>₹${chapterTotal.toLocaleString("en-IN")}</td></tr>`;
+      } else {
+        table += `<tr><td>Chapter VI‑A</td><td>Not applicable under New Regime</td><td>₹0</td></tr>`;
+      }
+
+      table += `<tr><td>Taxable income</td><td>Net income − Chapter VI‑A</td><td>₹${taxable.toLocaleString("en-IN")}</td></tr>`;
+
+      if (slab.rows.length === 0) {
+        table += `<tr><td>Slab tax</td><td>Within Nil slab</td><td>₹0</td></tr>`;
+      } else {
+        slab.rows.forEach(row => {
+          table += `<tr><td>Slab</td><td>${row[0]} @ ${row[1]}</td><td>${row[2]}</td></tr>`;
+        });
+        table += `<tr><td>Base tax</td><td>Total of slab taxes</td><td>₹${formatINR(baseTax)}</td></tr>`;
+      }
+
+      const rebateNote = `Rebate u/s 87A (taxable ≤ ₹${r.rebateThreshold.toLocaleString("en-IN")})`;
+      table += `<tr><td>${rebateNote}</td><td>${rebate > 0 ? "Eligible" : "Not eligible"}</td><td>₹${formatINR(rebate)}</td></tr>`;
+      table += `<tr><td>Health & Education Cess</td><td>4% on tax after rebate</td><td>₹${formatINR(cess)}</td></tr>`;
+      table += `<tr><td>TDS</td><td>Tax deducted at source</td><td>₹${formatINR(tds)}</td></tr>`;
+      table += `<tr><th>Total tax payable</th><th>Tax after rebate + cess − TDS</th><th>₹${formatINR(netPayable)}</th></tr>`;
+      table += "</table>";
+
+      document.getElementById("breakdown").innerHTML = table;
+    }
+
+    document.addEventListener("DOMContentLoaded", updateUI);
+  </script>
+</body>
+</html>
